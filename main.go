@@ -1,4 +1,4 @@
-package main // import "github.com/tianon/gosu"
+package main
 
 import (
 	"log"
@@ -36,6 +36,11 @@ func main() {
 	err := SetupUser(os.Args[1])
 	if err != nil {
 		log.Fatalf("error: failed switching to %q: %v", os.Args[1], err)
+	}
+
+	err = WaitSockets()
+	if err != nil {
+		log.Fatalf("")
 	}
 
 	name, err := exec.LookPath(os.Args[2])

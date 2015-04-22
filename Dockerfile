@@ -10,8 +10,8 @@ ENV GOPATH $GOPATH:/go/src/github.com/docker/libcontainer/vendor
 # disable CGO for ALL THE THINGS (to help ensure no libc)
 ENV CGO_ENABLED 0
 
-COPY *.go /go/src/github.com/tianon/gosu/
-WORKDIR /go/src/github.com/tianon/gosu
+COPY *.go /go/src/github.com/bpowers/gosu/
+WORKDIR /go/src/github.com/bpowers/gosu
 
 # gosu-$(dpkg --print-architecture)
 RUN GOARCH=amd64       go build -v -ldflags -d -o /go/bin/gosu-amd64

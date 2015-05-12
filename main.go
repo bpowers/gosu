@@ -40,7 +40,7 @@ func main() {
 
 	err = WaitSockets()
 	if err != nil {
-		log.Fatalf("")
+		log.Fatalf("error: WaitSockets: %s", err)
 	}
 
 	name, err := exec.LookPath(os.Args[2])

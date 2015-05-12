@@ -10,6 +10,12 @@ import (
 	"time"
 )
 
+const (
+	overallTimeout  = 30 * time.Second
+	perTryTimeout   = 2 * time.Second
+	numConnAttempts = int(overallTimeout / perTryTimeout)
+)
+
 // docker-compose passes the locations of sockets that the current
 // container cares about in environmental variables.  Here we wait
 // until we can establish TCP sockets to the addresses specified, a
@@ -42,11 +48,18 @@ func WaitSockets() error {
 	}
 
 	for addr, _ := range addrs {
-		conn, err := net.DialTimeout("tcp", addr, 30*time.Second)
-		if err != nil {
-			return fmt.Errorf("DialTimeout(%s): %s", addr, err)
+		var err error
+		for i := 0; i < numConnAttempts; i++ {
+			var conn net.Conn
+			conn, err = net.DialTimeout("tcp", addr, 2*time.Second)
+			if err == nil {
+				conn.Close()
+				break
+			}
 		}
-		conn.Close()
+		if err != nil {
+			return fmt.Errorf("DialTimeout(%s)", addr, err)
+		}
 	}
 
 	return nil

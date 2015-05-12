@@ -49,16 +49,24 @@ func WaitSockets() error {
 
 	for addr, _ := range addrs {
 		var err error
-		for i := 0; i < numConnAttempts; i++ {
+		var i int
+		for i = 0; i < numConnAttempts; i++ {
 			var conn net.Conn
+			start := time.Now()
 			conn, err = net.DialTimeout("tcp", addr, 2*time.Second)
 			if err == nil {
 				conn.Close()
 				break
 			}
+			// if we get a ConnRefused error, the
+			// DialTimeout might return immediately.  If
+			// we don't sleep the rest of our timeout, we
+			// will blow through all 15 connection
+			// attempts in a matter of milliseconds.
+			time.Sleep(start.Add(perTryTimeout).Sub(time.Now()))
 		}
 		if err != nil {
-			return fmt.Errorf("DialTimeout(%s)", addr, err)
+			return fmt.Errorf("DialTimeout(%s) after %d attempts: %s", addr, i, err)
 		}
 	}
 
